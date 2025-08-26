@@ -27,5 +27,8 @@
       "slidev-component-poll",
       "@olzhas-adiyatov/slidev-addon-asciinema"
     ]
+  },
+  "devDependencies": {
+    "@types/marked": "^5.0.2"
   }
 }

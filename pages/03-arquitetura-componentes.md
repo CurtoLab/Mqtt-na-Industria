@@ -14,9 +14,11 @@ layout: default
 
 ## O Coração do Sistema MQTT
 
-<div class="grid grid-cols-2 gap-8 mt-6">
+<div class="grid grid-cols-2 gap-1 mt-">
 
 <div>
+
+<v-clicks>
 
 ### 🔧 Responsabilidades
 - **Receber** mensagens dos publishers
@@ -32,6 +34,8 @@ layout: default
 - **AWS IoT Core** - Cloud, escalável
 - **Azure IoT Hub** - Microsoft cloud
 - **EMQX** - Distribuído, clusters
+
+</v-clicks>
 
 </div>
 
@@ -178,66 +182,9 @@ log_type all
 log_dest file /var/log/mosquitto.log
 ```
 
-<div class="mt-4 p-3 bg-red-50 rounded text-sm">
+<div class="mt-4 p-3 bg-red-600 rounded text-sm">
 ⚠️ <strong>Nunca</strong> use MQTT sem segurança em produção!
 </div>
 
 </div>
 
----
-layout: default
----
-
-# 📊 Sessões Persistentes
-
-## Garantindo Continuidade
-
-<div class="grid grid-cols-2 gap-8 mt-6">
-
-<div>
-
-### 🔄 **Clean Session = false**
-```cpp
-// ESP32 - Sessão persistente
-client.setCleanSession(false);
-client.setClientId("factory_sensor_001");
-
-// Broker lembra:
-// - Subscriptions ativas
-// - Mensagens QoS 1/2 pendentes
-// - Estado da conexão
-```
-
-### ✨ **Vantagens**
-- Mensagens não se perdem
-- Reconexão automática
-- Estado preservado
-- Ideal para sensores críticos
-
-</div>
-
-<div>
-
-### 🆕 **Clean Session = true**
-```cpp
-// ESP32 - Sessão limpa
-client.setCleanSession(true);
-
-// A cada conexão:
-// - Nova sessão
-// - Sem histórico
-// - Subscriptions devem ser refeitas
-```
-
-### ⚡ **Vantagens**
-- Menor uso de memória no broker
-- Conexões mais rápidas
-- Ideal para dados temporários
-
-</div>
-
-</div>
-
-<div class="mt-8 p-4 bg-blue-50 rounded-lg">
-<strong>💡 Dica Industrial:</strong> Use sessões persistentes para sensores críticos e sessões limpas para monitoramento geral.
-</div>

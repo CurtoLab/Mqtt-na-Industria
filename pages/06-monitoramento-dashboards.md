@@ -10,9 +10,9 @@ Visualização de dados MQTT
 layout: default
 ---
 
-# 🎛️ Grafana Dashboard
+# 🎛️ ThingsBoard Dashboard
 
-## Visualização Profissional
+## Plataforma IoT Completa
 
 <div class="grid grid-cols-2 gap-8 mt-6">
 
@@ -30,59 +30,63 @@ services:
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
 
-  influxdb:
-    image: influxdb:2.7
+  thingsboard:
+    image: thingsboard/tb-postgres
     ports:
-      - "8086:8086"
+      - "8080:9090"
     environment:
-      - INFLUXDB_DB=factory_data
+      - TB_QUEUE_TYPE=in-memory
+    volumes:
+      - tb-data:/data
+      - tb-logs:/var/log/thingsboard
 
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
+volumes:
+  tb-data:
+  tb-logs:
 ```
 
-### 📈 **Métricas Industriais**
-- Temperatura em tempo real
-- Consumo energético
-- Status de máquinas
-- Produtividade (OEE)
-- Alarmes ativos
+### 📈 **Recursos ThingsBoard**
+- Dashboards visuais drag-and-drop
+- Regras de negócio (Rule Chain)
+- Alertas e notificações
+- API REST completa
+- Controle de acesso (RBAC)
+- Integração MQTT nativa
 
 </div>
 
 <div>
 
-### 📊 **Tipos de Gráficos**
+### � **Configuração MQTT**
 
-**Time Series:**
-```sql
-SELECT mean("value") FROM "temperatura" 
-WHERE time >= now() - 24h 
-GROUP BY time(5m)
+**1. Criar Device:**
+```bash
+# Via REST API
+curl -X POST http://localhost:8080/api/v1/device \
+  -H "Content-Type: application/json" \
+  -H "X-Authorization: Bearer $TOKEN" \
+  -d '{
+    "name": "ESP32_Sensor_001",
+    "type": "Temperature Sensor"
+  }'
 ```
 
-**Gauge (Medidor):**
-```sql
-SELECT last("value") FROM "pressao"
-WHERE "machine" = 'compressor_01'
+**2. Obter Access Token:**
+```json
+{
+  "id": "abc123...",
+  "name": "ESP32_Sensor_001",
+  "accessToken": "YOUR_DEVICE_TOKEN"
+}
 ```
 
-**Stat Panel:**
-```sql
-SELECT count() FROM "alarmes"
-WHERE time >= now() - 1h 
-AND "severity" = 'critical'
-```
-
-**Table:**
-```sql
-SELECT "machine", last("status"), last("temp")
-FROM "status" 
-GROUP BY "machine"
+**3. Enviar dados via MQTT:**
+```bash
+# Publicar telemetria
+mosquitto_pub -h localhost -p 1883 \
+  -t "v1/devices/me/telemetry" \
+  -u "YOUR_DEVICE_TOKEN" \
+  -m '{"temperature": 25.6, "humidity": 60.2}'
 ```
 
 </div>
@@ -93,7 +97,7 @@ GROUP BY "machine"
 layout: default
 ---
 
-# 🔗 Integração MQTT → InfluxDB
+# 🔗 Integração MQTT → ThingsBoard
 
 ## Pipeline de Dados
 
@@ -101,78 +105,107 @@ layout: default
 
 <div>
 
-### 🐍 **Script Python Connector**
-```python
-import paho.mqtt.client as mqtt
-from influxdb_client import InfluxDBClient, Point
-import json
+### � **Código ESP32 para ThingsBoard**
+```cpp
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include <ArduinoJson.h>
 
-# Configuração InfluxDB
-client_influx = InfluxDBClient(
-    url="http://localhost:8086",
-    token="your-token",
-    org="factory"
-)
-write_api = client_influx.write_api()
+const char* ssid = "YOUR_WIFI";
+const char* password = "YOUR_PASSWORD";
+const char* mqtt_server = "localhost";
+const char* access_token = "YOUR_DEVICE_TOKEN";
 
-def on_message(client, userdata, msg):
-    try:
-        # Parse da mensagem MQTT
-        topic = msg.topic
-        payload = json.loads(msg.payload.decode())
-        
-        # Criar ponto InfluxDB
-        point = Point("sensor_data") \
-            .tag("location", topic.split('/')[1]) \
-            .tag("sensor_type", topic.split('/')[2]) \
-            .field("value", payload['value']) \
-            .field("unit", payload['unit'])
-        
-        # Escrever no banco
-        write_api.write(bucket="factory", record=point)
-        print(f"Dados salvos: {topic} = {payload['value']}")
-        
-    except Exception as e:
-        print(f"Erro ao processar: {e}")
+WiFiClient espClient;
+PubSubClient client(espClient);
 
-# Cliente MQTT
-client = mqtt.Client()
-client.on_message = on_message
-client.connect("localhost", 1883, 60)
-client.subscribe("factory/+/+")  # Todos os tópicos factory
-client.loop_forever()
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Conectando WiFi...");
+  }
+  
+  client.setServer(mqtt_server, 1883);
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  
+  // Ler sensores
+  float temp = 25.0 + random(-5, 5);
+  float hum = 60.0 + random(-10, 10);
+  
+  // Criar JSON
+  DynamicJsonDocument doc(200);
+  doc["temperature"] = temp;
+  doc["humidity"] = hum;
+  doc["timestamp"] = millis();
+  
+  char buffer[256];
+  serializeJson(doc, buffer);
+  
+  // Publicar telemetria
+  client.publish("v1/devices/me/telemetry", buffer);
+  
+  delay(5000);
+}
+
+void reconnect() {
+  while (!client.connected()) {
+    if (client.connect("ESP32Client", access_token, "")) {
+      Serial.println("Conectado ao ThingsBoard!");
+    } else {
+      delay(5000);
+    }
+  }
+}
 ```
 
 </div>
 
 <div>
 
-### 🔧 **Telegraf (Alternativa)**
-```toml
-# telegraf.conf
-[[inputs.mqtt_consumer]]
-  servers = ["tcp://localhost:1883"]
-  topics = ["factory/+/temperature", "factory/+/pressure"]
-  data_format = "json"
-  
-  [[inputs.mqtt_consumer.topic_parsing]]
-    topic = "factory/+/+"
-    measurement = "_/_/measurement"
-    tags = "location/sensor_type/_"
+### � **Dashboard ThingsBoard**
 
-[[outputs.influxdb_v2]]
-  urls = ["http://localhost:8086"]
-  token = "your-influxdb-token"
-  organization = "factory"
-  bucket = "sensors"
+**1. Criar Dashboard:**
+- Acesse: http://localhost:8080
+- Login: tenant@thingsboard.org / tenant
+- Dashboard → Create new dashboard
+
+**2. Widgets Disponíveis:**
+```json
+{
+  "timeSeriesChart": {
+    "title": "Temperatura",
+    "type": "latest",
+    "datasource": "ESP32_Sensor_001",
+    "keys": ["temperature"]
+  },
+  "digitalGauge": {
+    "title": "Humidade",
+    "type": "latest", 
+    "datasource": "ESP32_Sensor_001",
+    "keys": ["humidity"]
+  },
+  "alarmWidget": {
+    "title": "Alertas Ativos",
+    "type": "alarm",
+    "datasource": "ESP32_Sensor_001"
+  }
+}
 ```
 
-### ⚡ **Vantagens do Telegraf**
-- Configuração sem código
-- Plugins prontos para MQTT
-- Transformações de dados
-- Alta performance
-- Monitoramento integrado
+### ⚡ **Vantagens do ThingsBoard**
+- Interface drag-and-drop
+- Regras de negócio visuais
+- Controle de dispositivos (RPC)
+- Multi-tenancy
+- Escalabilidade horizontal
 
 </div>
 

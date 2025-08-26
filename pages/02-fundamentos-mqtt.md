@@ -93,6 +93,8 @@ layout: default
 
 <div class="flex justify-center mt-8">
 
+<div style="transform: scale(1.5); margin: 2rem 0;">
+
 ```mermaid
 sequenceDiagram
     participant S as Sensor
@@ -118,75 +120,20 @@ sequenceDiagram
 
 </div>
 
+</div>
+
 <div class="mt-6 grid grid-cols-3 gap-4 text-sm">
-<div class="p-3 bg-green-50 rounded">
+<div class="p-3 bg-green-600 rounded">
 <strong>Publisher</strong><br>
 Envia dados para tópicos
 </div>
-<div class="p-3 bg-blue-50 rounded">
+<div class="p-3 bg-blue-600 rounded">
 <strong>Broker</strong><br>
 Gerencia e roteia mensagens
 </div>
-<div class="p-3 bg-purple-50 rounded">
+<div class="p-3 bg-purple-600 rounded">
 <strong>Subscriber</strong><br>
 Recebe dados de tópicos
 </div>
 </div>
 
----
-layout: default
----
-
-# 🎯 Tópicos e Wildcards
-
-## Sistema Hierárquico de Tópicos
-
-<div class="grid grid-cols-2 gap-8 mt-6">
-
-<div>
-
-### 📝 Estrutura de Tópicos
-```
-factory/
-├── line1/
-│   ├── machine_a/temperature
-│   ├── machine_a/pressure
-│   └── machine_b/status
-├── line2/
-│   ├── conveyor/speed
-│   └── robot/position
-└── energy/
-    ├── consumption
-    └── generation
-```
-
-</div>
-
-<div>
-
-### 🔍 Wildcards
-
-**Single Level (+)**
-```
-factory/line1/+/temperature
-# Recebe:
-# factory/line1/machine_a/temperature
-# factory/line1/machine_b/temperature
-```
-
-**Multi Level (#)**
-```
-factory/line1/#
-# Recebe TUDO de line1:
-# factory/line1/machine_a/temperature
-# factory/line1/machine_a/pressure
-# factory/line1/machine_b/status
-```
-
-</div>
-
-</div>
-
-<div class="mt-6 p-4 bg-yellow-50 rounded-lg">
-<strong>⚠️ Cuidado:</strong> Use wildcards com moderação em produção para evitar sobrecarga.
-</div>
