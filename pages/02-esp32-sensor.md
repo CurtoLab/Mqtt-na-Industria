@@ -179,10 +179,8 @@ layout: default
 
 ### 1️⃣ **Instalar ESP32 no Arduino IDE**
 ```
-File → Preferences → Additional Board Manager URLs:
-https://dl.espressif.com/dl/package_esp32_index.json
+Boards Manager → Buscar "ESP32" → Esp32 by Espressif Systems → Install:
 
-Tools → Board → Boards Manager → Buscar "ESP32" → Install
 ```
 
 <div class="mt-4">
@@ -207,8 +205,7 @@ layout: default
 
 ### 2️⃣ **Instalar Bibliotecas**
 ```
-Sketch → Include Library → Manage Libraries:
-- "AHT10" by Adafruit
+Library Manager → Buscar AHT10 → Adafruit AHT10 by Adafruit:
 ```
 
 <div class="mt-4">
@@ -233,19 +230,18 @@ layout: default
 
 ### 3️⃣ **Configurar Board**
 ```
-Tools → Board → ESP32 Arduino → ESP32 Dev Module
-Tools → Port → /dev/ttyACM0 (ou ttyUSB0)
-Tools → Upload Speed → 115200
+Tools → Select other board → Buscar DOIT ESP32 DEVKIT → Selecionar Porta USB → OK
+
 ```
 <div class="mt-4">
 <video 
   autoplay 
-  loop 
+  loop
   muted 
   controls 
   class="w-full rounded-lg shadow-lg max-w-md mx-auto"
 >
-  <source src="/videos/install-board.mp4" type="video/mp4">
+  <source src="/videos/select-board.mp4" type="video/mp4">
   Seu navegador não suporta vídeos.
 </video>
 <p class="text-center text-sm text-gray-600 mt-2">
@@ -259,44 +255,34 @@ layout: default
 
 # 📝 Código Base - Setup
 
-## Configuração Inicial
+<div class="grid grid-cols-3 gap-6">
 
-<div class="grid grid-cols-2 gap-6">
+<div class="col-span-2 overflow-y-auto max-h-114" style="font-size: 10px; line-height: 1;">
 
-<div>
 
 ```cpp
 #include <AHT10.h>
 #include <Wire.h>
-
 // Definições
 #define LED_PIN 2       // LED interno ESP32
-
 // Inicialização do sensor
 AHT10 aht10;
 
 void setup() {
-  // Configuração serial
-  Serial.begin(115200);
-  Serial.println("ESP32 + AHT10 - Iniciando...");
-  
-  // Configuração do LED
-  pinMode(LED_PIN, OUTPUT);
+  Serial.begin(115200); // Configuração serial
+  Serial.println("ESP32 + AHT10 - Iniciando...");   
+  pinMode(LED_PIN, OUTPUT); // Configuração do LED
   digitalWrite(LED_PIN, LOW);
-  
-  // Inicializar I2C
-  Wire.begin();
-  
-  // Inicializar sensor AHT10
-  if (!aht10.begin()) {
+
+  Wire.begin(); // Inicializar I2C
+
+  if (!aht10.begin()) { // Inicializar sensor AHT10
     Serial.println("❌ Erro: AHT10 não encontrado!");
     while (1);
   }
-  
+
   Serial.println("✅ AHT10 inicializado com sucesso!");
-  
-  // Aguardar estabilização
-  delay(2000);
+  delay(2000); // Aguardar estabilização
   Serial.println("Sistema pronto!");
 }
 ```
@@ -308,7 +294,7 @@ void setup() {
 ### 🔍 **Explicação do Código**
 
 **Bibliotecas:**
-- `AHT10.h` - Comunicação com sensor
+- `AHT10.h`-Comunicação com sensor
 - `Wire.h` - Protocolo I2C
 
 **Definições:**
@@ -331,11 +317,9 @@ layout: default
 
 # 🔄 Código Base - Loop Principal
 
-## Leitura e Exibição de Dados
+<div class="grid grid-cols-3 gap-6">
 
-<div class="grid grid-cols-2 gap-6">
-
-<div>
+<div class="col-span-2 overflow-y-auto max-h-112" style="font-size: 10px; line-height: 1;">
 
 ```cpp
 void loop() {
@@ -386,13 +370,14 @@ float calculateHeatIndex(float temp, float humidity) {
 
 </div>
 
-<div>
+<div class="text-sm normal">
 
 ### 🔍 **Funcionalidades**
 
+<div class="compact">
+
 **Indicação Visual:**
 - 💡 LED pisca a cada leitura
-- ✅ Confirma funcionamento
 
 **Leitura de Dados:**
 - 🌡️ Temperatura em °C (1 casa decimal)
@@ -402,10 +387,6 @@ float calculateHeatIndex(float temp, float humidity) {
 **Tratamento de Erro:**
 - ❌ Detecta falhas de leitura
 - 🔄 Tenta novamente após delay
-
-**Saída Serial:**
-- 📊 Dados formatados
-- ⏱️ Leitura a cada 5 segundos
 
 ### 🎯 **Próximo Passo**
 Integração com **MQTT** para envio dos dados ao **ThingsBoard**!
@@ -422,7 +403,7 @@ layout: default
 
 ## Validando o Funcionamento
 
-<div class="grid grid-cols-2 gap-8 mt-6">
+<div class="grid grid-cols-2 gap-8 mt-6 text-sm">
 
 <div>
 

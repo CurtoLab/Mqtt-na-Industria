@@ -7,14 +7,12 @@ layout: section
 Message Queuing Telemetry Transport
 
 ---
-layout: default
+layout: two-cols
 ---
 
 # 🤔 O que é MQTT?
 
-<div class="grid grid-cols-2 gap-8 mt-8">
 
-<div>
 
 ## Definição
 **MQTT** (Message Queuing Telemetry Transport) é um protocolo de mensagens leve, projetado para comunicação M2M (Machine-to-Machine) em redes com largura de banda limitada.
@@ -26,9 +24,9 @@ layout: default
 - **Persistente**: Mensagens retidas
 - **Seguro**: Suporte TLS/SSL
 
-</div>
+::right::
 
-<div class="flex flex-col justify-center">
+<br><br><br><br>
 
 ```mermaid
 graph TD
@@ -39,9 +37,9 @@ graph TD
     B -->|subscribe| F[Alertas]
 ```
 
-</div>
 
-</div>
+
+
 
 ---
 layout: two-cols
@@ -70,7 +68,7 @@ layout: two-cols
 
 ::right::
 
-<div class="mt-8">
+<br><br><br>
 
 | Protocolo | Overhead | Tempo Real | IoT Ready |
 |-----------|----------|------------|-----------|
@@ -79,11 +77,10 @@ layout: two-cols
 | CoAP      | 4 bytes  | ✅ Sim     | ✅ Sim    |
 | WebSocket | 6+ bytes | ✅ Sim     | ⚠️ Limitado |
 
-<div class="mt-6 text-sm opacity-70">
-💡 MQTT é 100x mais eficiente que HTTP
-</div>
 
-</div>
+💡 MQTT é 100x mais eficiente que HTTP
+
+
 
 ---
 layout: default
@@ -114,8 +111,8 @@ sequenceDiagram
     B->>A: 75°C
     
     S->>B: PUBLISH temperature: 95°C
-    B->>D: 95°C (automático)
-    B->>A: 95°C (automático)
+    B->>D: 95°C 
+    B->>A: 95°C 
 ```
 
 </div>
