@@ -60,7 +60,7 @@ hide: false
 ---
 
 ---
-src: ./pages/02-fundamentos-mqtt.md
+src: ./pages/02-esp32-sensor.md
 hide: false
 ---
 
