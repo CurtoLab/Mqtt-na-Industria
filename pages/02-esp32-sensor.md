@@ -249,191 +249,190 @@ Tools → Select other board → Buscar DOIT ESP32 DEVKIT → Selecionar Porta U
 </p>
 </div>
 
+
 ---
-layout: default
+layout: two-cols-header
 ---
 
 # 📝 Código Base - Setup
 
-<div class="grid grid-cols-3 gap-6">
+::left::
 
-<div class="col-span-2 overflow-y-auto max-h-114" style="font-size: 10px; line-height: 1;">
-
+<div class="col-span-2 overflow-y-auto max-h-110 text-xs" style="line-height:1.1;">
 
 ```cpp
-#include <AHT10.h>
+#include <Adafruit_AHT10.h>
 #include <Wire.h>
 // Definições
-#define LED_PIN 2       // LED interno ESP32
+#define LED_PIN 2 // LED interno ESP32
 // Inicialização do sensor
-AHT10 aht10;
+Adafruit_AHT10 aht;
 
-void setup() {
+void setup()
+{
   Serial.begin(115200); // Configuração serial
-  Serial.println("ESP32 + AHT10 - Iniciando...");   
+  Serial.println("ESP32 + AHT10 - Iniciando...");
   pinMode(LED_PIN, OUTPUT); // Configuração do LED
   digitalWrite(LED_PIN, LOW);
-
   Wire.begin(); // Inicializar I2C
-
-  if (!aht10.begin()) { // Inicializar sensor AHT10
+  if (!aht.begin())
+  { // Inicializar sensor AHT10
     Serial.println("❌ Erro: AHT10 não encontrado!");
-    while (1);
+    while (1)
+    {
+      delay(100);
+    }
   }
-
   Serial.println("✅ AHT10 inicializado com sucesso!");
   delay(2000); // Aguardar estabilização
   Serial.println("Sistema pronto!");
 }
 ```
-
 </div>
 
-<div>
+::right::
 
-### 🔍 **Explicação do Código**
+<div class="pl-6">
 
-**Bibliotecas:**
-- `AHT10.h`-Comunicação com sensor
-- `Wire.h` - Protocolo I2C
+### 🔍 Explicação do código
 
-**Definições:**
-- `LED_PIN` - LED para indicação visual
+### 📚 Bibliotecas
+- `AHT10.h` — comunicação com o sensor AHT10
+- `Wire.h` — protocolo I2C
 
-**Setup:**
-- ⚡ Serial a 115200 baud
-- 🔌 Configurar pinos
-- 🌡️ Inicializar sensor AHT10
-- ❌ Verificação de erro na inicialização
-- ⏱️ Delay para estabilização
+### ⚙️ Definições
+- `LED_PIN` — pino do LED para indicação visual
 
-</div>
+### ⚡ O que o `setup()` faz
+1. Inicializa a porta Serial em 115200 baud
+2. Configura o pino do LED como saída
+3. Inicializa o barramento I2C
+4. Tenta iniciar o sensor AHT10 e entra em loop se não for encontrado (delay para evitar busy-wait)
+5. Aguarda estabilização antes de continuar
 
 </div>
 
 ---
-layout: default
+layout: two-cols-header
 ---
 
 # 🔄 Código Base - Loop Principal
 
-<div class="grid grid-cols-3 gap-6">
+::left::
 
-<div class="col-span-2 overflow-y-auto max-h-112" style="font-size: 10px; line-height: 1;">
+<div class="col-span-2 overflow-y-auto max-h-110 text-xs" style="line-height:1.1;">
 
 ```cpp
-void loop() {
+void loop()
+{
   // Piscar LED para indicar atividade
   digitalWrite(LED_PIN, HIGH);
   delay(100);
   digitalWrite(LED_PIN, LOW);
-  
-  // Ler dados do sensor
-  float temperatura = aht10.readTemperature();
-  float umidade = aht10.readHumidity();
-  
+  sensors_event_t humidity, temp;
+  aht.getEvent(&humidity, &temp); 
+
   // Verificar se leitura foi bem-sucedida
-  if (isnan(temperatura) || isnan(umidade)) {
+  if (isnan(temp.temperature) || isnan(humidity.relative_humidity))
+  {
     Serial.println("❌ Erro ao ler AHT10!");
     delay(2000);
     return;
   }
-  
+
   // Exibir dados no Serial Monitor
   Serial.println("📊 === LEITURA SENSOR ===");
   Serial.print("🌡️  Temperatura: ");
-  Serial.print(temperatura, 1);
+  Serial.print(temp.temperature, 1);
   Serial.println("°C");
-  
+
   Serial.print("💧 Umidade: ");
-  Serial.print(umidade, 1);
+  Serial.print(humidity.relative_humidity, 1);
   Serial.println("%");
-  
+
   // Calcular índice de calor
-  float heatIndex = calculateHeatIndex(temperatura, umidade);
+  float heatIndex = calculateHeatIndex(temp.temperature, humidity.relative_humidity);
   Serial.print("🔥 Sensação térmica: ");
   Serial.print(heatIndex, 1);
   Serial.println("°C");
-  
+
   Serial.println("========================\n");
-  
+
   // Aguardar próxima leitura
   delay(5000); // 5 segundos
 }
 
 // Função para calcular índice de calor
-float calculateHeatIndex(float temp, float humidity) {
-  return temp + (0.33 * (humidity / 100.0 * 6.105 * 
-         exp((17.27 * temp) / (237.7 + temp)))) - 0.5;
+float calculateHeatIndex(float temp, float humidity)
+{
+  return temp + (0.33 * (humidity / 100.0 * 6.105 * exp((17.27 * temp) / (237.7 + temp)))) - 0.5;
 }
 ```
-
 </div>
 
-<div class="text-sm normal">
+::right::
+
+<div class="pl-6 text-lg" > 
 
 ### 🔍 **Funcionalidades**
 
-<div class="compact">
-
-**Indicação Visual:**
+### **Indicação Visual:**
 - 💡 LED pisca a cada leitura
 
-**Leitura de Dados:**
+### **Leitura de Dados:**
 - 🌡️ Temperatura em °C (1 casa decimal)
 - 💧 Umidade relativa em %
 - 🔥 Índice de calor calculado
 
-**Tratamento de Erro:**
+
+### **Tratamento de Erro:**
 - ❌ Detecta falhas de leitura
 - 🔄 Tenta novamente após delay
+
+<br>
 
 ### 🎯 **Próximo Passo**
 Integração com **MQTT** para envio dos dados ao **ThingsBoard**!
 
 </div>
 
-</div>
+
 
 ---
-layout: default
+layout: two-cols-header
 ---
 
 # 🚀 Teste e Verificação
 
+::left::
+
 ## Validando o Funcionamento
 
-<div class="grid grid-cols-2 gap-8 mt-6 text-sm">
-
-<div>
+<div class="pl-6 text-sm" > 
 
 ### 📋 **Checklist de Teste**
 
-<v-clicks>
-
-✅ **Upload do código sem erros**
-✅ **LED pisca a cada 5 segundos**
-✅ **Serial Monitor mostra dados**
-✅ **Temperatura coerente (20-30°C)**
-✅ **Umidade coerente (30-70%)**
-✅ **Sem mensagens de erro**
-
-</v-clicks>
+- ✅ **Upload do código sem erros**
+- ✅ **LED pisca a cada 5 segundos**
+- ✅ **Serial Monitor mostra dados**
+- ✅ **Temperatura coerente (20-30°C)**
+- ✅ **Umidade coerente (30-70%)**
+- ✅ **Sem mensagens de erro**
 
 ### 🔧 **Resolução de Problemas**
 
-**Erro "AHT10 não encontrado":**
+### **Erro "AHT10 não encontrado":**
 - Verificar conexões SDA/SCL
 - Confirmar alimentação 3.3V
-- Testar endereço I2C: `i2cdetect -y 1`
+- Testar endereço I2C:
 
-**Dados estranhos:**
+### **Dados estranhos:**
 - Verificar se é AHT10 (endereço 0x38)
 - Aguardar 2 minutos para estabilizar
 
 </div>
 
-<div>
+::right::
 
 ### 📊 **Saída Esperada no Serial Monitor**
 
@@ -455,11 +454,6 @@ Sistema pronto!
 ========================
 ```
 
-<div class="mt-4 p-3 bg-green-100 rounded text-sm">
+
 ✅ <strong>Tudo funcionando!</strong><br>
 Próximo passo: Conectar ao MQTT
-</div>
-
-</div>
-
-</div>

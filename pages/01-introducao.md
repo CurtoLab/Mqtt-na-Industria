@@ -49,7 +49,7 @@ transition: fade
 
 <div class="mt-8 p-4 bg-blue-600 rounded-lg text-sm">
   <strong>⏱️ Duração:</strong> ~2 horas<br>
-  <strong>🎯 Nível:</strong> Intermediário
+  <strong>🎯 Nível:</strong> Iniciante
 </div>
 
 </div>

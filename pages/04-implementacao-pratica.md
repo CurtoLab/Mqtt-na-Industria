@@ -6,60 +6,6 @@ layout: section
 
 ESP32 + MQTT na Indústria
 
----
-layout: default
----
-
-# 🛠️ Setup do Ambiente
-
-## Ferramentas Necessárias
-
-<div class="grid grid-cols-2 gap-8 mt-6">
-
-<div>
-
-### 📱 **Hardware**
-- ESP32 DevKit
-- Sensor DHT22 (temperatura/umidade)
-- Resistor 10kΩ
-- Protoboard e jumpers
-- Fonte 5V (opcional)
-
-### 💻 **Software**
-- Arduino IDE ou PlatformIO
-- Mosquitto Broker
-- MQTT Explorer
-- Biblioteca PubSubClient
-
-</div>
-
-<div>
-
-### 🔧 **Instalação Mosquitto**
-
-**Linux/Ubuntu:**
-```bash
-sudo apt update
-sudo apt install mosquitto mosquitto-clients
-sudo systemctl start mosquitto
-sudo systemctl enable mosquitto
-```
-
-**Windows:**
-```bash
-# Download do site oficial
-# Instalar como serviço
-net start mosquitto
-```
-
-**Docker:**
-```bash
-docker run -it -p 1883:1883 eclipse-mosquitto
-```
-
-</div>
-
-</div>
 
 ---
 layout: default
@@ -70,255 +16,145 @@ layout: default
 <div class="flex justify-center mt-6">
 
 ```
-ESP32 DevKit        DHT22
-    ┌─────────┐      ┌─────┐
-    │  3.3V   ├──────┤ VCC │
-    │  GND    ├──────┤ GND │
-    │  GPIO4  ├──────┤ DATA│
-    │         │      └─────┘
-    │  GPIO2  ├─── LED Status
-    └─────────┘
+                    ESP32 DevKit
+                   ┌─────────────┐
+                   │             │
+    AHT10          │             │
+   ┌─────┐         │             │
+   │ VCC │─────────│ 3.3V        │
+   │ GND │─────────│ GND         │
+   │ SDA │─────────│ GPIO 21     │
+   │ SCL │─────────│ GPIO 22     │
+   └─────┘         │             │
+                   │             │
+     LED           │             │
+   ┌─────┐         │             │
+   │  +  │─────────│ GPIO 2      │
+   │  -  │────┐    │             │
+   └─────┘    │    └─────────────┘
+              │
+           220Ω Resistor
+              │
+              GND
 ```
-
 </div>
 
-<div class="grid grid-cols-2 gap-8 mt-8">
-
-<div>
-
-### 🎯 **Pinout ESP32**
-- **GPIO4**: Sensor DHT22
-- **GPIO2**: LED status (built-in)
-- **3.3V**: Alimentação sensor
-- **GND**: Terra comum
-
-</div>
-
-<div>
-
-### 📡 **Funcionalidades**
-- Leitura de temperatura/umidade
-- Publicação via MQTT
-- LED indica status de conexão
-- Reconexão automática Wi-Fi/MQTT
-
-</div>
-
-</div>
 
 ---
 layout: default
 ---
+
+# ➕ Instalar Bibliotecas:
+
+### Arduino IDE (Library Manager)
+1. Buscar e instalar:
+   - "ArduinoJson" — Autor: Benoit Blanchon
+   - "PubSubClient" — Autor: Nick O'Leary
+
+<div class="mt-4">
+<video 
+  autoplay 
+  loop
+  muted 
+  controls 
+   class="w-120 rounded-lg shadow-lg mx-auto" 
+  >
+>
+  <source src="/videos/add-libs.mp4" type="video/mp4">
+  Seu navegador não suporta vídeos.
+</video>
+</div>
+
+
+
+
+
+
+---
+layout: default
+---
+
+<style>
+pre, code {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+.slide { overflow-x: hidden !important; }
+</style>
 
 # 📝 Código ESP32 - Configuração
 
-```cpp {1-25|26-45|46-60}
-#include <WiFi.h>
-#include <PubSubClient.h>
-#include <DHT.h>
-#include <ArduinoJson.h>
+```cpp {1-4|5-9|10-14|15-16|17-22}
+#include <WiFi.h>                 // Biblioteca para Wi-Fi no ESP32
+#include <PubSubClient.h>         // Biblioteca MQTT (PubSubClient)
+#include <ArduinoJson.h>          // Biblioteca para criar/serializar JSON
 
-// Configurações Wi-Fi
-const char* ssid = "SUA_REDE_WIFI";
-const char* password = "SUA_SENHA_WIFI";
+const char* WIFI_SSID  = "CURTOCIRCUITO";              // SSID da sua rede Wi-Fi
+const char* WIFI_PASS  = "Curto@1020";                 // Senha da sua rede Wi-Fi
+const char* MQTT_HOST  = "demo.thingsboard.io";        // Endereço do broker MQTT
+const int   MQTT_PORT  = 1883;                         // Porta MQTT (1883 sem TLS)
+const char* MQTT_TOPIC = "v1/devices/me/telemetry";    // Tópico onde vamos publicar
 
-// Configurações MQTT
-const char* mqtt_server = "192.168.1.100";  // IP do broker
-const int mqtt_port = 1883;
-const char* mqtt_user = "factory_user";
-const char* mqtt_pass = "factory_pass";
-const char* client_id = "esp32_sensor_001";
+const char* CLIENT_TOKEN = "qxVF6fxpZwT1N3fUk34d";     // Token fixo do cliente (usaremos como senha)
+const char* MQTT_USER    = CLIENT_TOKEN;               // Usuário do MQTT (ajuste conforme seu broker)
+const char* MQTT_PASS    = "";                         // Senha do MQTT (aqui usando o token)
 
-// Tópicos MQTT
-const char* topic_temp = "factory/line1/temperature";
-const char* topic_hum = "factory/line1/humidity";
-const char* topic_status = "factory/line1/status";
+WiFiClient net;                                 // Cliente TCP para a pilha de rede
+PubSubClient client(net);                       // Cliente MQTT usando o cliente TCP acima                                 
 
-// Configurações do sensor
-#define DHT_PIN 4
-#define DHT_TYPE DHT22
-#define LED_PIN 2
-
-// Objetos
-WiFiClient espClient;
-PubSubClient client(espClient);
-DHT dht(DHT_PIN, DHT_TYPE);
-
-// Variáveis de controle
-unsigned long lastMsg = 0;
-const long interval = 30000;  // 30 segundos
-float temperature, humidity;
-bool sensor_error = false;
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(LED_PIN, OUTPUT);
-  
-  // Inicializar sensor
-  dht.begin();
-  
-  // Conectar Wi-Fi
-  setup_wifi();
-  
-  // Configurar MQTT
-  client.setServer(mqtt_server, mqtt_port);
-  client.setCallback(callback);
-  
-  Serial.println("Sistema inicializado!");
-}
-
-void setup_wifi() {
-  delay(10);
-  Serial.print("Conectando ao Wi-Fi: ");
-  Serial.println(ssid);
-  
-  WiFi.begin(ssid, password);
-  
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN)); // Pisca LED
-  }
-  
-  digitalWrite(LED_PIN, HIGH); // LED ligado = conectado
-  Serial.println("\nWi-Fi conectado!");
-  Serial.print("IP: ");
-  Serial.println(WiFi.localIP());
-}
+void setup() {                                  
+  Serial.begin(115200);                         // Inicia a serial para logs (115200 bps)
+  conectaWiFi();                                // Conecta ao Wi-Fi
+  conectaMQTT();                                // Conecta ao broker MQTT
+}                  
 ```
 
 ---
 layout: default
 ---
 
+<style>
+pre, code {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+.slide { overflow-x: hidden !important; }
+</style>
+
 # 📝 Código ESP32 - MQTT e Loop
 
-```cpp {1-30|31-60|61-85}
-void callback(char* topic, byte* payload, unsigned int length) {
-  String message;
-  for (int i = 0; i < length; i++) {
-    message += (char)payload[i];
-  }
-  
-  Serial.print("Mensagem recebida [");
-  Serial.print(topic);
-  Serial.print("]: ");
-  Serial.println(message);
-  
-  // Processar comandos remotos
-  if (String(topic) == "factory/line1/command") {
-    if (message == "restart") {
-      ESP.restart();
-    } else if (message == "status") {
-      publish_status();
-    }
-  }
-}
+<div class="overflow-y-auto max-h-114 pl-4">
 
-void reconnect() {
-  while (!client.connected()) {
-    Serial.print("Tentando conexão MQTT...");
-    
-    if (client.connect(client_id, mqtt_user, mqtt_pass)) {
-      Serial.println(" conectado!");
-      
-      // Subscrever a tópicos de comando
-      client.subscribe("factory/line1/command");
-      
-      // Publicar status online
-      publish_status();
-      
-    } else {
-      Serial.print(" falhou, rc=");
-      Serial.print(client.state());
-      Serial.println(" tentando novamente em 5 segundos");
-      
-      // Piscar LED para indicar erro
-      for(int i = 0; i < 10; i++) {
-        digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-        delay(250);
-      }
-    }
-  }
-}
+```cpp {1-12|13-17|18-29}
 
-void loop() {
-  if (!client.connected()) {
-    reconnect();
-  }
-  client.loop();
-  
-  unsigned long now = millis();
-  if (now - lastMsg > interval) {
-    lastMsg = now;
-    
-    // Ler sensores
-    read_sensors();
-    
-    // Publicar dados
-    if (!sensor_error) {
-      publish_temperature();
-      publish_humidity();
-    }
-    
-    publish_status();
-  }
-}
-
-void read_sensors() {
-  humidity = dht.readHumidity();
-  temperature = dht.readTemperature();
-  
-  if (isnan(humidity) || isnan(temperature)) {
-    Serial.println("Erro ao ler sensor DHT!");
-    sensor_error = true;
-  } else {
-    sensor_error = false;
-    Serial.printf("Temperatura: %.2f°C, Umidade: %.2f%%\n", 
-                  temperature, humidity);
-  }
-}
-
-void publish_temperature() {
-  StaticJsonDocument<200> doc;
-  doc["value"] = temperature;
-  doc["unit"] = "°C";
-  doc["timestamp"] = millis();
-  doc["sensor_id"] = client_id;
-  
-  char buffer[256];
-  serializeJson(doc, buffer);
-  
-  client.publish(topic_temp, buffer, true); // retained = true
-}
-
-void publish_humidity() {
-  StaticJsonDocument<200> doc;
-  doc["value"] = humidity;
-  doc["unit"] = "%";
-  doc["timestamp"] = millis();
-  doc["sensor_id"] = client_id;
-  
-  char buffer[256];
-  serializeJson(doc, buffer);
-  
-  client.publish(topic_hum, buffer, true);
-}
-
-void publish_status() {
-  StaticJsonDocument<300> doc;
-  doc["status"] = sensor_error ? "error" : "online";
-  doc["wifi_rssi"] = WiFi.RSSI();
-  doc["free_heap"] = ESP.getFreeHeap();
-  doc["uptime"] = millis();
-  doc["ip"] = WiFi.localIP().toString();
-  
-  char buffer[350];
-  serializeJson(doc, buffer);
-  
-  client.publish(topic_status, buffer, true);
-}
+void loop() {                                   
+  if (!client.connected())                      // Verifica se a conexão MQTT caiu
+    conectaMQTT();                              // Se caiu, tenta reconectar
+  client.loop();                                // Processa a máquina de estados do MQTT
+  StaticJsonDocument<96> doc;                   // Documento JSON estático (tamanho 96 bytes)
+  doc["status"] = "ok";                         // Campo "status" com valor "ok"
+  doc["valor"]  = 1;                            // Campo "valor" com exemplo numérico
+  String payload;                                // String para receber o JSON serializado
+  serializeJson(doc, payload);                   // Converte o objeto JSON em texto (payload)
+  client.publish(MQTT_TOPIC, payload.c_str());   // Publica o texto JSON no tópico MQTT
+  delay(3000);                                   
+}       
+void conectaWiFi() {                            // Função para conectar ao Wi-Fi
+  WiFi.begin(WIFI_SSID, WIFI_PASS);             // Inicia a conexão com SSID e senha
+  while (WiFi.status() != WL_CONNECTED)         // Aguarda até obter estado "conectado"
+    delay(200);                              
+}                                              
+void conectaMQTT() {                      
+  client.setServer(MQTT_HOST, MQTT_PORT);       // Define host e porta 
+  while (!client.connected()) {                 // Loop até conectar com sucesso
+    client.connect("esp-32", MQTT_USER, MQTT_PASS);                                                                               
+    delay(200);                                
+  }                                          
+}        
 ```
+</div>
 
 ---
 layout: default
@@ -326,72 +162,19 @@ layout: default
 
 # 🧪 Teste do Sistema
 
-## Comandos para Teste
+## Validação de Comunicação
 
-<div class="grid grid-cols-2 gap-8 mt-6">
-
-<div>
-
-### 📡 **Publicar teste**
-```bash
-# Testar broker
-mosquitto_pub -h localhost -t "test/topic" \
-  -m "Hello MQTT"
-
-# Simular comando
-mosquitto_pub -h localhost \
-  -t "factory/line1/command" -m "status"
-
-# Simular sensor externo
-mosquitto_pub -h localhost \
-  -t "factory/line1/pressure" \
-  -m '{"value": 2.5, "unit": "bar"}'
-```
-
-### 🎯 **Subscrever tópicos**
-```bash
-# Ver todos os dados da linha 1
-mosquitto_sub -h localhost \
-  -t "factory/line1/#"
-
-# Ver apenas temperatura
-mosquitto_sub -h localhost \
-  -t "factory/line1/temperature"
-```
-
+<div class="mt-4">
+<video 
+  autoplay 
+  loop
+  muted 
+  controls 
+   class="w-120 rounded-lg shadow-lg mx-auto" 
+  >
+>
+  <source src="/videos/comunicacao.mp4" type="video/mp4">
+  Seu navegador não suporta vídeos.
+</video>
 </div>
 
-<div>
-
-### 📊 **Output esperado**
-```json
-// factory/line1/temperature
-{
-  "value": 23.5,
-  "unit": "°C",
-  "timestamp": 12345678,
-  "sensor_id": "esp32_sensor_001"
-}
-
-// factory/line1/status
-{
-  "status": "online",
-  "wifi_rssi": -45,
-  "free_heap": 234567,
-  "uptime": 120000,
-  "ip": "192.168.1.105"
-}
-```
-
-### 🔍 **Debugging**
-```bash
-# Ver logs do Mosquitto
-tail -f /var/log/mosquitto/mosquitto.log
-
-# Monitor de conexões
-mosquitto_sub -h localhost -t '$SYS/#'
-```
-
-</div>
-
-</div>

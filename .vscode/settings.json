@@ -1,0 +1,29 @@
+{
+    "tailwindCSS.includeLanguages": {
+        "markdown": "html",
+        "plaintext": "html"
+    },
+    "tailwindCSS.experimental.classRegex": [
+        [
+            "class\\s*=\\s*\"([^\"]*)\"",
+            1
+        ],
+        [
+            "className\\s*=\\s*\"([^\"]*)\"",
+            1
+        ],
+        [
+            "class:\\s*\"([^\"]*)\"",
+            1
+        ]
+    ],
+    "tailwindCSS.emmetCompletions": true,
+    "html-css-class-completion.enableInMarkdown": true,
+    "unocss.enabled": true,
+    "editor.quickSuggestions": {
+        "strings": true
+    },
+    "files.associations": {
+        "*.md": "markdown"
+    }
+}

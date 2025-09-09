@@ -1,53 +1,67 @@
 /* Configurações globais para Slidev */
 html {
-  line-height: 1.4;
+    line-height: 1.4;
 }
 
 /* Espaçamento entre elementos de slide */
 .slidev-layout {
-  --slidev-line-height: 1.4;
+    --slidev-line-height: 1.4;
 }
 
 /* Títulos com espaçamento otimizado */
 .slidev-layout h1 {
-  line-height: 1.2 !important;
-  margin-bottom: 1.5rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1.5rem !important;
 }
 
 .slidev-layout h2 {
-  line-height: 1.3 !important;
-  margin-bottom: 1rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 1rem !important;
 }
 
 .slidev-layout h3 {
-  line-height: 1.3 !important;
-  margin-bottom: 0.8rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.8rem !important;
 }
 
 /* Parágrafos */
 .slidev-layout p {
-  line-height: 1.5 !important;
-  margin-bottom: 1rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 1rem !important;
 }
 
 /* Listas */
 .slidev-layout ul,
 .slidev-layout ol {
-  line-height: 1.4 !important;
+    line-height: 1.4 !important;
 }
 
 .slidev-layout li {
-  margin-bottom: 0.4rem !important;
+    margin-bottom: 0.4rem !important;
 }
 
 /* Código */
 .slidev-layout pre {
-  line-height: 1.2 !important;
+    line-height: 1.2 !important;
 }
 
 /* Classes utilitárias */
-.tight { line-height: 1.1 !important; }
-.normal { line-height: 1.4 !important; }
-.loose { line-height: 1.8 !important; }
-.compact { margin-bottom: 0.5rem !important; }
-.spaced { margin-bottom: 2rem !important; }
+.tight {
+    line-height: 1.1 !important;
+}
+
+.normal {
+    line-height: 1.4 !important;
+}
+
+.loose {
+    line-height: 1.8 !important;
+}
+
+.compact {
+    margin-bottom: 0.5rem !important;
+}
+
+.spaced {
+    margin-bottom: 2rem !important;
+}

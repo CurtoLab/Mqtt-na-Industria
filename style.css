@@ -2,58 +2,58 @@
 
 /* Controle de espaçamento entre parágrafos */
 .slide-content p {
-  margin-bottom: 0.8rem;
-  line-height: 1.4;
+    margin-bottom: 0.8rem;
+    line-height: 1.4;
 }
 
 /* Espaçamento reduzido entre títulos */
 .slide-content h1,
 .slide-content h2,
 .slide-content h3 {
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  line-height: 1.2;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
 }
 
 /* Listas com espaçamento compacto */
 .slide-content ul,
 .slide-content ol {
-  line-height: 1.3;
-  margin-bottom: 1rem;
+    line-height: 1.3;
+    margin-bottom: 1rem;
 }
 
 .slide-content li {
-  margin-bottom: 0.3rem;
+    margin-bottom: 0.3rem;
 }
 
 /* Código com espaçamento específico */
 .slide-content pre {
-  line-height: 1.1;
-  margin: 1rem 0;
+    line-height: 1.1;
+    margin: 1rem 0;
 }
 
 /* Classes utilitárias para diferentes espaçamentos */
 .tight-spacing {
-  line-height: 1.1 !important;
+    line-height: 1.1 !important;
 }
 
 .normal-spacing {
-  line-height: 1.4 !important;
+    line-height: 1.4 !important;
 }
 
 .loose-spacing {
-  line-height: 1.8 !important;
+    line-height: 1.8 !important;
 }
 
 /* Quebras de linha manuais */
 .line-break {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
 .small-break {
-  margin-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .large-break {
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 }
