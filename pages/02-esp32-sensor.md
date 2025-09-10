@@ -47,7 +47,7 @@ SPI: GPIO 23 (MOSI), 19 (MISO), 18 (SCK)
 UART: GPIO 1 (TX), 3 (RX)
 ```
 
-<div class="mt-4 p-3 bg-blue-100 rounded text-sm">
+<div class="mt-4 p-3 bg-blue-500 rounded text-sm">
 💡 <strong>Dica:</strong> Evite usar GPIO 0, 2, 12, 15 para sensores
 </div>
 
@@ -98,7 +98,7 @@ SDA      →    GPIO 21
 SCL      →    GPIO 22
 ```
 
-<div class="mt-6 p-4 bg-green-100 rounded">
+<div class="mt-6 p-4 bg-green-500 rounded">
 <strong>📚 Biblioteca necessária:</strong><br>
 <code>AHT10</code> by Rob Tillaart
 </div>
@@ -175,8 +175,6 @@ layout: default
 
 # 💻 Configuração Arduino IDE
 
-
-
 ### 1️⃣ **Instalar ESP32 no Arduino IDE**
 ```
 Boards Manager → Buscar "ESP32" → Esp32 by Espressif Systems → Install:
@@ -203,6 +201,8 @@ Boards Manager → Buscar "ESP32" → Esp32 by Espressif Systems → Install:
 layout: default
 ---
 
+# 💻 Configuração Arduino IDE
+
 ### 2️⃣ **Instalar Bibliotecas**
 ```
 Library Manager → Buscar AHT10 → Adafruit AHT10 by Adafruit:
@@ -228,6 +228,8 @@ Library Manager → Buscar AHT10 → Adafruit AHT10 by Adafruit:
 layout: default
 ---
 
+# 💻 Configuração Arduino IDE
+
 ### 3️⃣ **Configurar Board**
 ```
 Tools → Select other board → Buscar DOIT ESP32 DEVKIT → Selecionar Porta USB → OK
@@ -245,7 +247,7 @@ Tools → Select other board → Buscar DOIT ESP32 DEVKIT → Selecionar Porta U
   Seu navegador não suporta vídeos.
 </video>
 <p class="text-center text-sm text-gray-600 mt-2">
-  📹 Demonstração da instalação do ESP32 no Arduino IDE
+  📹 Demonstração configuralção do ESP32 no Arduino IDE
 </p>
 </div>
 

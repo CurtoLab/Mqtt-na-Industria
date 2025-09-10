@@ -1,4 +1,12 @@
 ---
+layout: section
+---
+
+#  🏭 **ThigsBoard**
+
+Open-source IoT Platform
+
+---
 layout: two-cols-header
 ---
 
@@ -167,7 +175,6 @@ const char* token = "YOUR_DEVICE_TOKEN";
 client.connect("ESP32Client", token, NULL);
 
 ```
-
 <div class="mt-4">
 <video 
   autoplay 
@@ -180,4 +187,7 @@ client.connect("ESP32Client", token, NULL);
   <source src="/videos/add-device.mp4" type="video/mp4">
   Seu navegador não suporta vídeos.
 </video>
+<p class="text-center text-sm text-gray-600 mt-0">
+  📹 Demonstração criação device thingsboard
+</p>
 </div>

@@ -7,6 +7,7 @@
   "scripts": {
     "build": "slidev build",
     "dev": "slidev --open",
+    "dev-network": "slidev --host 0.0.0.0 --port 3030",
     "export": "slidev export",
     "export-pdf": "slidev export --format pdf",
     "preview": "slidev build && slidev preview"

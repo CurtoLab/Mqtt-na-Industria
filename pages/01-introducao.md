@@ -1,6 +1,5 @@
 ---
 layout: two-cols
-transition: fade
 ---
 
 <div class="flex flex-col items-left justify-center h-full">
@@ -21,7 +20,6 @@ transition: fade
 - 📡 **Protocolo**: Como funciona o MQTT
 - 🏗️ **Arquitetura**: Broker, Publisher, Subscriber
 - 📂 **Tópicos**: Organização hierárquica
-- 🔒 **QoS**: Qualidade de serviço
 
 </v-clicks>
 
@@ -41,14 +39,13 @@ transition: fade
 
 ### 4️⃣ **Dashboard ThingsBoard**
 - 📈 **Widgets**: Gráficos e medidores
-- 🚨 **Alertas**: Regras de negócio
 - 👀 **Visualização**: Tempo real
-- 🎛️ **Controle**: Interface responsiva
+
 
 </v-clicks>
 
 <div class="mt-8 p-4 bg-blue-600 rounded-lg text-sm">
-  <strong>⏱️ Duração:</strong> ~2 horas<br>
+  <strong>⏱️ Duração:</strong> ~3 horas<br>
   <strong>🎯 Nível:</strong> Iniciante
 </div>
 
