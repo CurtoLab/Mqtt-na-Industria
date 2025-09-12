@@ -1,8 +1,7 @@
 ---
 # Configurações globais do Slidev
 theme: default
-colorSchema: auto
-background: https://source.unsplash.com/1920x1080/?gradient
+colorSchema: light
 title: MQTT na Indústria 4.0
 info: |
     ## MQTT na Indústria 4.0
@@ -26,8 +25,6 @@ drawings:
     persist: false
 
 # Configurações de aparência
-darkClass: "dark"
-lightClass: "light"
 canvasWidth: 980
 htmlAttrs:
     dir: ltr
@@ -40,11 +37,14 @@ fonts:
     mono: "Fira Code"
 
 css: unocss
+background: "/images/background-light.jpg"
 layout: center
 ---
+
+
 # MQTT na Indústria 4.0
 
-<span style="font-size: 2rem; color: #0ea5e9;">Conectividade Industrial Inteligente</span>
+<span style="font-size: 2rem; color: #000000ff;">Conectividade Industrial Inteligente</span>
 
 <div class="mt-12 space-y-4">
   <div class="text-lg opacity-80">
